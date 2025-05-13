@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
@@ -10,19 +9,14 @@ const app = express();
 const port = process.env.PORT || 3000;
 const users = [];
 
-// Важно! Добавляем middlware для обработки x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
 
-// Так же используем JSON-парсер
 app.use(express.json());
 
-// Включаем CORS для безопасности
 app.use(cors());
 
-// Генерируем секретный ключ для JWT
 const secretKey = 'supersecretkey';
 
-// Главная страница
 app.get('/', (req, res) => {
     const mainPagePath = path.join(__dirname, 'main.html');
     fs.readFile(mainPagePath, 'utf8', (err, content) => {
@@ -30,11 +24,10 @@ app.get('/', (req, res) => {
             console.error(err);
             return res.status(500).send('Internal Server Error');
         }
-        res.send(content); // Отправляем содержание главной страницы
+        res.send(content);
     });
 });
 
-// Форма регистрации
 app.get('/register', (req, res) => {
     const registrationFormPath = path.join(__dirname, 'register.html');
     fs.readFile(registrationFormPath, 'utf8', (err, content) => {
@@ -42,11 +35,10 @@ app.get('/register', (req, res) => {
             console.error(err);
             return res.status(500).send('Internal Server Error');
         }
-        res.send(content); // Возвращаем форму регистрации
+        res.send(content);
     });
 });
 
-// Форма авторизации
 app.get('/login', (req, res) => {
     const loginFormPath = path.join(__dirname, 'login.html');
     fs.readFile(loginFormPath, 'utf8', (err, content) => {
@@ -54,11 +46,10 @@ app.get('/login', (req, res) => {
             console.error(err);
             return res.status(500).send('Internal Server Error');
         }
-        res.send(content); // Возвращаем форму авторизации
+        res.send(content);
     });
 });
 
-// Регистрация нового пользователя
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).send({ message: 'Username or Password missing' });
@@ -73,7 +64,6 @@ app.post('/register', async (req, res) => {
     }
 });
 
-// Вход пользователя и получение JWT-токена
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const user = users.find(u => u.username === username);
@@ -94,7 +84,6 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// Middleware для защиты маршрутов с проверкой JWT
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -108,12 +97,10 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// Маршрут, защищенный JWT
 app.get('/protected', authenticateToken, (req, res) => {
     res.send({ message: 'Это защищенная область.', userId: req.userId });
 });
 
-// Запускаем сервер
 app.listen(port, () => {
     console.log(`Сервер запущен на http://localhost:${port}`);
 });
